@@ -1,0 +1,10 @@
+
+flask>=3.0
+flask-sqlalchemy>=3.1
+werkzeug>=3.0
+ultralytics>=8.0      # YOLOv8 — pip install ultralytics
+opencv-python>=4.9    # for fake_cctv.py and scan_clip.py
+streamlit>=1.35       # admin dashboard
+pandas>=2.0           # used by streamlit dashboard
+psycopg2-binary>=2.9  # postgresql for vercel
+cloudinary>=1.36      # cloud images for vercel

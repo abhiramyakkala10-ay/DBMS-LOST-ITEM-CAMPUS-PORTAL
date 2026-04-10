@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Register — Campus L&F</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#f4f7f5;--surface:#ffffff;--surface2:#e8efe9;--border:#c8d8cb;
+  --accent:#1b4332;--accent-hover:#2d6a4f;--text:#1a1a2e;--muted:#5f7161;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;}
+a{color:var(--accent);text-decoration:none;font-weight:500;}
+a:hover{color:var(--accent-hover);}
+.container{width:100%;max-width:420px;padding:1rem;}
+.logo{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:2rem;color:var(--text);}
+.logo span{color:var(--accent);}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:2rem;box-shadow:0 4px 20px rgba(27,67,50,0.06);}
+h2{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:.3rem;color:var(--text);}
+p.sub{color:var(--muted);font-size:.875rem;margin-bottom:1.75rem;}
+.form-group{margin-bottom:1rem;}
+label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:.4rem;font-weight:500;}
+input{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:.65rem .9rem;border-radius:7px;font-size:.9rem;font-family:inherit;transition:border-color .15s,box-shadow .15s;}
+input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(27,67,50,0.1);}
+.btn{width:100%;padding:.7rem;border-radius:7px;font-size:.95rem;font-weight:600;background:var(--accent);color:#fff;border:none;cursor:pointer;font-family:'Syne',sans-serif;transition:all .18s ease;margin-top:.5rem;}
+.btn:hover{background:var(--accent-hover);transform:translateY(-1px);}
+.footer-link{text-align:center;margin-top:1.25rem;font-size:.85rem;color:var(--muted);}
+.flash{padding:.65rem .9rem;border-radius:7px;margin-bottom:1rem;font-size:.85rem;background:#fce4e4;border:1px solid #ef444444;color:#991b1b;}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="logo">Campus <span>L&F</span></div>
+  <div class="card">
+    <h2>Create account</h2>
+    <p class="sub">Join the campus lost & found network</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="flash">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="POST">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" name="name" placeholder="Your full name" required/>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" placeholder="you@example.com" required/>
+      </div>
+      <div class="form-group">
+        <label>Phone (optional)</label>
+        <input type="tel" name="phone" placeholder="9XXXXXXXXX"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="••••••••" required/>
+      </div>
+      <button type="submit" class="btn">Create Account</button>
+    </form>
+
+    <div class="footer-link">
+      Already have an account? <a href="{{ url_for('login') }}">Sign in</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>
