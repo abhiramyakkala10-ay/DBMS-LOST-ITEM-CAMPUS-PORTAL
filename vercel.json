@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "dbms-lost-item-campus-portal-849zacux8",
   "builds": [
     { "src": "campus_lf/app.py", "use": "@vercel/python" }
   ],

@@ -19,3 +19,5 @@ ENV/
 
 # Vercel build output
 .vercel/
+.vercel
+.env*
