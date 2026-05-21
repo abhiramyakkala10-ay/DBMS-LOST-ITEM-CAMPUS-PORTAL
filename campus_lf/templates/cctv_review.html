@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}CCTV Review — Campus L&F{% endblock %}
+{% block content %}
+
+<div style="margin-bottom:1rem;">
+  <a href="{{ url_for('item_detail', item_id=item.item_id) }}"
+     style="color:var(--muted);font-size:.85rem;">← Back to item</a>
+</div>
+
+<div class="page-header">
+  <h1>📷 CCTV Review</h1>
+  <p>
+    Reviewing clips for
+    <span style="color:var(--accent);">{{ item.category | title }} #{{ item.item_id }}</span>
+    &nbsp;·&nbsp;
+    {{ item.date.strftime('%b %d, %Y · %H:%M') }}
+    &nbsp;·&nbsp;
+    {{ item.location.name if item.location else '—' }}
+  </p>
+</div>
+
+{% if clips %}
+<div class="grid-2">
+  {% for clip in clips %}
+  <div class="card">
+    <div class="card-body">
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;">
+        <div>
+          <div style="font-weight:600;font-family:'Syne',sans-serif;">{{ clip.camera_id }}</div>
+          <div style="font-size:.8rem;color:var(--muted);">
+            {{ clip.timestamp.strftime('%b %d, %Y · %H:%M:%S') }}
+          </div>
+        </div>
+        <span class="badge" style="background:#1e1b4b;color:#a5b4fc;">CCTV</span>
+      </div>
+
+      <div style="background:var(--surface2);border-radius:8px;padding:.75rem;
+                  font-size:.78rem;color:var(--muted);word-break:break-all;margin-bottom:.75rem;">
+        {{ clip.clip_path }}
+      </div>
+
+      <!-- YOLOv8 Detections -->
+      {% if clip.detections %}
+        <div style="margin-bottom:.75rem;">
+          <div style="font-size:.8rem;font-weight:600;margin-bottom:.5rem;color:var(--text);">
+            Object Detections
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
+            {% for det in clip.detections[:8] %}
+              <span style="background:var(--surface2);border:1px solid var(--border);
+                           border-radius:4px;padding:.2rem .5rem;font-size:.75rem;">
+                {{ det.label }}
+                <span style="color:var(--accent);">{{ (det.confidence * 100)|int }}%</span>
+                @ {{ det.timestamp_sec }}s
+              </span>
+            {% endfor %}
+            {% if clip.detections|length > 8 %}
+              <span style="color:var(--muted);font-size:.78rem;align-self:center;">
+                +{{ clip.detections|length - 8 }} more
+              </span>
+            {% endif %}
+          </div>
+        </div>
+      {% else %}
+        <div style="font-size:.82rem;color:var(--muted);margin-bottom:.75rem;">
+          No detections stored.
+          <span style="color:var(--accent);">
+            Run: python scan_clip.py --event-id {{ clip.event_id }} --category {{ item.category }}
+          </span>
+        </div>
+      {% endif %}
+
+      <!-- Link clip to item -->
+      {% if not clip.item_id %}
+        <a href="#" style="font-size:.82rem;color:var(--accent);"
+           onclick="linkClip({{ clip.event_id }}, {{ item.item_id }}); return false;">
+          🔗 Link this clip to item
+        </a>
+      {% else %}
+        <span style="font-size:.78rem;background:#14532d22;color:#86efac;
+                     padding:.2rem .5rem;border-radius:4px;">
+          ✓ Linked to item #{{ clip.item_id }}
+        </span>
+      {% endif %}
+
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div style="text-align:center;padding:4rem;color:var(--muted);">
+  <div style="font-size:3rem;margin-bottom:.75rem;">📷</div>
+  <div style="font-size:1.1rem;margin-bottom:.5rem;">No CCTV clips found</div>
+  <div style="font-size:.875rem;">
+    {% if item.location and item.location.has_cctv %}
+      No clips in the ±2 hour window around the reported time.
+      <br/>Run <code style="color:var(--accent);">python fake_cctv.py --camera {{ item.location.camera_id }} --location {{ item.location_id }}</code>
+      to add a demo clip.
+    {% else %}
+      This location has no CCTV coverage.
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+<script>
+async function linkClip(eventId, itemId) {
+  const resp = await fetch(`/admin/link-clip/${eventId}/${itemId}`, { method: 'POST' });
+  if (resp.ok) location.reload();
+  else alert('Failed to link clip');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}My Items — Campus L&F{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>My Items</h1>
+  <p>Your reports and claims</p>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;">
+
+  <!-- REPORTED -->
+  <div>
+    <h2 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:1rem;">
+      Reports I Filed ({{ reported|length }})
+    </h2>
+
+    {% for item in reported %}
+    <a href="{{ url_for('item_detail', item_id=item.item_id) }}"
+       style="display:block;padding:1rem;background:var(--surface);border:1px solid var(--border);
+              border-radius:var(--radius);margin-bottom:.75rem;
+              transition:border-color .15s;"
+       onmouseover="this.style.borderColor='var(--accent)'"
+       onmouseout="this.style.borderColor='var(--border)'">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div style="font-weight:600;margin-bottom:.3rem;">{{ item.category | title }}</div>
+          <div style="font-size:.82rem;color:var(--muted);">
+            {{ item.date.strftime('%b %d, %Y') }} ·
+            {{ item.location.name if item.location else '—' }}
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;">
+          <span class="badge badge-{{ item.type }}">{{ item.type }}</span>
+          <span class="badge badge-{{ item.status }}">{{ item.status }}</span>
+        </div>
+      </div>
+
+      <!-- pending claims on this item -->
+      {% set pending = item.claims | selectattr('status','eq','pending') | list %}
+      {% if pending %}
+        <div style="margin-top:.6rem;font-size:.78rem;background:#3b2a0022;
+                    border:1px solid #fcd34d44;color:#fcd34d;
+                    padding:.3rem .6rem;border-radius:4px;display:inline-block;">
+          {{ pending|length }} pending claim{% if pending|length > 1 %}s{% endif %}
+        </div>
+      {% endif %}
+    </a>
+    {% else %}
+      <p style="color:var(--muted);font-size:.875rem;">No reports yet.
+        <a href="{{ url_for('report') }}" style="color:var(--accent);">File one →</a>
+      </p>
+    {% endfor %}
+  </div>
+
+  <!-- CLAIMS -->
+  <div>
+    <h2 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:1rem;">
+      My Claims ({{ claims|length }})
+    </h2>
+
+    {% for claim in claims %}
+    <a href="{{ url_for('item_detail', item_id=claim.item_id) }}"
+       style="display:block;padding:1rem;background:var(--surface);border:1px solid var(--border);
+              border-radius:var(--radius);margin-bottom:.75rem;
+              transition:border-color .15s;"
+       onmouseover="this.style.borderColor='var(--accent)'"
+       onmouseout="this.style.borderColor='var(--border)'">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div style="font-weight:600;margin-bottom:.3rem;">{{ claim.item.category | title }}</div>
+          <div style="font-size:.82rem;color:var(--muted);">
+            Claimed {{ claim.timestamp.strftime('%b %d, %Y') }}
+          </div>
+          {% if claim.notes %}
+            <div style="font-size:.8rem;color:var(--muted);margin-top:.3rem;">
+              "{{ claim.notes[:60] }}{% if claim.notes|length > 60 %}…{% endif %}"
+            </div>
+          {% endif %}
+        </div>
+        <span class="badge badge-{{ claim.status }}">{{ claim.status }}</span>
+      </div>
+    </a>
+    {% else %}
+      <p style="color:var(--muted);font-size:.875rem;">No claims submitted yet.</p>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

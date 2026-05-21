@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Admin — Campus L&F{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Admin Panel</h1>
+  <p>Manage items, claims, and matches</p>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;">
+
+  <!-- PENDING CLAIMS -->
+  <div>
+    <h2 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:1rem;">
+      ✋ Pending Claims ({{ claims|length }})
+    </h2>
+
+    {% for claim in claims %}
+    <div style="background:var(--surface);border:1px solid var(--border);
+                border-radius:var(--radius);padding:1rem;margin-bottom:.75rem;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:.6rem;">
+        <div>
+          <div style="font-weight:600;">{{ claim.item.category | title }}</div>
+          <div style="font-size:.8rem;color:var(--muted);">
+            By {{ claim.claimant.name }} · {{ claim.timestamp.strftime('%b %d') }}
+          </div>
+        </div>
+        <span class="badge badge-{{ claim.item.type }}">{{ claim.item.type }}</span>
+      </div>
+
+      {% if claim.notes %}
+        <div style="font-size:.82rem;color:var(--muted);margin-bottom:.75rem;
+                    background:var(--surface2);padding:.6rem;border-radius:6px;">
+          {{ claim.notes }}
+        </div>
+      {% endif %}
+
+      {% if claim.proof %}
+        <div style="margin-bottom:.75rem;">
+          <img src="/{{ claim.proof }}" style="max-height:80px;border-radius:6px;" alt="proof"/>
+        </div>
+      {% endif %}
+
+      <div style="display:flex;gap:.5rem;">
+        <a href="{{ url_for('admin_claim', claim_id=claim.claim_id, action='approve') }}"
+           class="btn btn-success btn-sm">✓ Approve</a>
+        <a href="{{ url_for('admin_claim', claim_id=claim.claim_id, action='reject') }}"
+           class="btn btn-danger btn-sm" onclick="return confirm('Reject this claim?')">✕ Reject</a>
+        <a href="{{ url_for('item_detail', item_id=claim.item_id) }}"
+           class="btn btn-secondary btn-sm">View Item</a>
+      </div>
+    </div>
+    {% else %}
+      <p style="color:var(--muted);font-size:.875rem;">No pending claims.</p>
+    {% endfor %}
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div>
+
+    <!-- TOP MATCHES -->
+    <h2 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:1rem;">
+      🔗 Top Auto-Matches
+    </h2>
+
+    {% for m in matches %}
+    <div style="background:var(--surface);border:1px solid var(--border);
+                border-radius:var(--radius);padding:.85rem;margin-bottom:.6rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;">
+        <div style="font-size:.875rem;font-weight:500;">
+          {{ m.lost_item.category | title }}
+          <span style="color:var(--muted);font-weight:400;"> ↔ </span>
+          {{ m.found_item.category | title }}
+        </div>
+        <span style="color:var(--accent);font-weight:700;font-size:.875rem;">
+          {{ (m.score * 100)|int }}%
+        </span>
+      </div>
+      <div class="score-bar"><div class="score-fill" style="width:{{ (m.score*100)|int }}%;"></div></div>
+      <div style="display:flex;gap:.5rem;margin-top:.6rem;">
+        <a href="{{ url_for('item_detail', item_id=m.lost_item_id) }}"
+           class="btn btn-secondary btn-sm">Lost #{{ m.lost_item_id }}</a>
+        <a href="{{ url_for('item_detail', item_id=m.found_item_id) }}"
+           class="btn btn-secondary btn-sm">Found #{{ m.found_item_id }}</a>
+      </div>
+    </div>
+    {% else %}
+      <p style="color:var(--muted);font-size:.875rem;">No matches yet.</p>
+    {% endfor %}
+
+    <!-- RECENT ITEMS -->
+    <h2 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-top:1.75rem;margin-bottom:1rem;">
+      📦 Recent Items
+    </h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th><th>Type</th><th>Category</th><th>Status</th><th>Date</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td style="color:var(--muted);">#{{ item.item_id }}</td>
+          <td><span class="badge badge-{{ item.type }}">{{ item.type }}</span></td>
+          <td>{{ item.category | title }}</td>
+          <td><span class="badge badge-{{ item.status }}">{{ item.status }}</span></td>
+          <td style="color:var(--muted);">{{ item.date.strftime('%b %d') }}</td>
+          <td>
+            <a href="{{ url_for('item_detail', item_id=item.item_id) }}"
+               style="color:var(--accent);font-size:.82rem;">View</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

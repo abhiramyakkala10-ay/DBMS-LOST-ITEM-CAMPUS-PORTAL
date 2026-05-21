@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Report Item — Campus L&F{% endblock %}
+{% block content %}
+
+<div style="max-width:620px;margin:0 auto;">
+  <div class="page-header">
+    <h1>Report an Item</h1>
+    <p>Fill in details to report a lost or found item</p>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <form method="POST" enctype="multipart/form-data">
+
+        <!-- TYPE TOGGLE -->
+        <div class="form-group">
+          <label>I am reporting this item as</label>
+          <div style="display:flex;gap:.75rem;">
+            <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:.5rem;
+                          padding:.75rem;border-radius:8px;cursor:pointer;border:2px solid var(--border);
+                          transition:all .15s;" id="lbl-lost">
+              <input type="radio" name="type" value="lost" required
+                     style="width:auto;" onchange="toggleType(this)"/> Lost
+            </label>
+            <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:.5rem;
+                          padding:.75rem;border-radius:8px;cursor:pointer;border:2px solid var(--border);
+                          transition:all .15s;" id="lbl-found">
+              <input type="radio" name="type" value="found"
+                     style="width:auto;" onchange="toggleType(this)"/> Found
+            </label>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="form-group">
+            <label>Category</label>
+            <select name="category" required>
+              <option value="">Select category…</option>
+              {% for cat in ['bag','wallet','phone','keys','bottle','laptop','umbrella','book','glasses','headphones','id-card','other'] %}
+                <option value="{{ cat }}">{{ cat | title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Location</label>
+            <select name="location_id">
+              <option value="">Unknown / not sure</option>
+              {% for loc in locations %}
+                <option value="{{ loc.location_id }}">
+                  {{ loc.name }}{% if loc.has_cctv %} 📷{% endif %}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Date & Time</label>
+          <input type="datetime-local" name="date" required
+                 value="{{ now.strftime('%Y-%m-%dT%H:%M') if now else '' }}"/>
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea name="description" rows="4"
+            placeholder="Describe the item — color, brand, unique marks, anything that helps…"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Photo (optional)</label>
+          <input type="file" name="image" accept="image/*"
+                 style="cursor:pointer;padding:.5rem;"/>
+          <div style="font-size:.78rem;color:var(--muted);margin-top:.3rem;">
+            Attach a photo to boost match accuracy
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;padding:.75rem;font-size:1rem;">
+          Submit Report
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleType(el) {
+  document.getElementById('lbl-lost').style.borderColor  = 'var(--border)';
+  document.getElementById('lbl-found').style.borderColor = 'var(--border)';
+  document.getElementById('lbl-lost').style.background   = 'transparent';
+  document.getElementById('lbl-found').style.background  = 'transparent';
+  const lbl = document.getElementById('lbl-' + el.value);
+  lbl.style.borderColor = el.value === 'lost' ? 'var(--lost)' : 'var(--found)';
+  lbl.style.background  = el.value === 'lost' ? '#7f1d1d22' : '#14532d22';
+}
+
+// Set default datetime to now
+window.addEventListener('load', function(){
+  const d = document.querySelector('input[name=date]');
+  if (!d.value) {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    d.value = now.toISOString().slice(0, 16);
+  }
+});
+</script>
+{% endblock %}

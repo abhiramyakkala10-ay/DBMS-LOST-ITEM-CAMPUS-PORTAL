@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% block title %}{{ item.category | title }} — Campus L&F{% endblock %}
+{% block content %}
+
+<div style="display:grid;grid-template-columns:1fr 380px;gap:2rem;align-items:start;">
+
+  <!-- LEFT: Item Info -->
+  <div>
+    <div style="margin-bottom:1rem;">
+      <a href="{{ url_for('items') }}" style="color:var(--muted);font-size:.85rem;">← Back to items</a>
+    </div>
+
+    <div class="card" style="margin-bottom:1.25rem;">
+      {% if item.image_path %}
+        <img src="/{{ item.image_path }}" style="width:100%;max-height:320px;object-fit:cover;" alt=""/>
+      {% else %}
+        <div style="height:200px;display:flex;align-items:center;justify-content:center;
+                    background:var(--surface2);font-size:4rem;">📦</div>
+      {% endif %}
+
+      <div class="card-body">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap;">
+          <span class="badge badge-{{ item.type }}">{{ item.type }}</span>
+          <span class="badge badge-{{ item.status }}">{{ item.status }}</span>
+          {% if item.location and item.location.has_cctv %}
+            <span class="badge" style="background:#1e1b4b;color:#a5b4fc;">📷 CCTV Available</span>
+          {% endif %}
+        </div>
+
+        <h1 style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:.5rem;">
+          {{ item.category | title }}
+        </h1>
+
+        <p style="color:var(--muted);line-height:1.65;margin-bottom:1.25rem;">
+          {{ item.description or 'No description provided.' }}
+        </p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;
+                    background:var(--surface2);border-radius:8px;padding:1rem;font-size:.875rem;">
+          <div>
+            <div style="color:var(--muted);font-size:.78rem;margin-bottom:.2rem;">Location</div>
+            <div>{{ item.location.name if item.location else '—' }}</div>
+          </div>
+          <div>
+            <div style="color:var(--muted);font-size:.78rem;margin-bottom:.2rem;">Date & Time</div>
+            <div>{{ item.date.strftime('%b %d, %Y · %H:%M') }}</div>
+          </div>
+          <div>
+            <div style="color:var(--muted);font-size:.78rem;margin-bottom:.2rem;">Reported by</div>
+            <div>{{ item.reporter.name if item.reporter else '—' }}</div>
+          </div>
+          <div>
+            <div style="color:var(--muted);font-size:.78rem;margin-bottom:.2rem;">Item ID</div>
+            <div style="color:var(--muted);">#{{ item.item_id }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUTO-MATCHES -->
+    {% if matches %}
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-body">
+        <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:1rem;">
+          🔗 Potential Matches
+        </h3>
+        {% for m in matches %}
+          {% set other = m.found_item if item.type == 'lost' else m.lost_item %}
+          <a href="{{ url_for('item_detail', item_id=other.item_id) }}"
+             style="display:block;padding:.85rem;border:1px solid var(--border);border-radius:8px;
+                    margin-bottom:.6rem;transition:border-color .15s;"
+             onmouseover="this.style.borderColor='var(--accent)'"
+             onmouseout="this.style.borderColor='var(--border)'">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;">
+              <span style="font-weight:500;">{{ other.category | title }}</span>
+              <span style="font-size:.8rem;color:var(--accent);font-weight:600;">
+                {{ (m.score * 100) | int }}% match
+              </span>
+            </div>
+            <div class="score-bar"><div class="score-fill" style="width:{{ (m.score*100)|int }}%;"></div></div>
+            <div style="font-size:.8rem;color:var(--muted);margin-top:.4rem;">
+              {{ other.description[:80] }}{% if other.description|length > 80 %}…{% endif %}
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- CCTV CLIPS (admin only) -->
+    {% if session.role == 'admin' and clips %}
+    <div class="card">
+      <div class="card-body">
+        <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:1rem;">
+          📷 CCTV Clips ({{ clips|length }})
+        </h3>
+        {% for clip in clips %}
+        <div style="background:var(--surface2);border-radius:8px;padding:.85rem;margin-bottom:.75rem;">
+          <div style="display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:.5rem;">
+            <span style="font-weight:500;">{{ clip.camera_id }}</span>
+            <span style="color:var(--muted);">{{ clip.timestamp.strftime('%b %d · %H:%M') }}</span>
+          </div>
+          <div style="font-size:.78rem;color:var(--muted);word-break:break-all;">
+            {{ clip.clip_path }}
+          </div>
+          {% if clip.detections %}
+            <div style="margin-top:.6rem;">
+              <span style="font-size:.78rem;background:#14532d22;color:#86efac;
+                           padding:.2rem .5rem;border-radius:4px;">
+                {{ clip.detections | length }} detections
+              </span>
+            </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- RIGHT: Claim Panel -->
+  <div style="position:sticky;top:80px;">
+    {% if item.status == 'open' and item.reported_by != session.user_id %}
+      {% if not user_claim %}
+      <div class="card">
+        <div class="card-body">
+          <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:.4rem;">
+            Is this yours?
+          </h3>
+          <p style="color:var(--muted);font-size:.875rem;margin-bottom:1.25rem;">
+            Submit a claim with your ID proof and notes to verify ownership.
+          </p>
+          <form method="POST" action="{{ url_for('claim_item', item_id=item.item_id) }}"
+                enctype="multipart/form-data">
+            <div class="form-group">
+              <label>Notes / Proof of Ownership</label>
+              <textarea name="notes" rows="3"
+                placeholder="Describe identifying details that prove this is yours…"></textarea>
+            </div>
+            <div class="form-group">
+              <label>ID Proof (photo)</label>
+              <input type="file" name="proof" accept="image/*" style="cursor:pointer;padding:.5rem;"/>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;">
+              Submit Claim
+            </button>
+          </form>
+        </div>
+      </div>
+      {% else %}
+      <div class="card">
+        <div class="card-body" style="text-align:center;">
+          <div style="font-size:2rem;margin-bottom:.5rem;">
+            {% if user_claim.status == 'pending' %}⏳
+            {% elif user_claim.status == 'approved' %}✅
+            {% else %}❌{% endif %}
+          </div>
+          <div style="font-weight:600;margin-bottom:.3rem;">Claim {{ user_claim.status | title }}</div>
+          <div style="color:var(--muted);font-size:.85rem;">
+            {% if user_claim.status == 'pending' %}Waiting for admin review.
+            {% elif user_claim.status == 'approved' %}Your claim was approved! Contact the reporter.
+            {% else %}Your claim was rejected.{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    {% elif item.reported_by == session.user_id %}
+      <div class="card">
+        <div class="card-body" style="text-align:center;">
+          <div style="font-size:1.5rem;margin-bottom:.5rem;">📋</div>
+          <div style="font-weight:600;margin-bottom:.3rem;">Your Report</div>
+          <div style="color:var(--muted);font-size:.85rem;">
+            You submitted this report. Check claims in My Items.
+          </div>
+          <a href="{{ url_for('my_items') }}" class="btn btn-secondary btn-sm"
+             style="margin-top:1rem;display:inline-block;">View My Items</a>
+        </div>
+      </div>
+    {% elif item.status == 'claimed' %}
+      <div class="card">
+        <div class="card-body" style="text-align:center;">
+          <div style="font-size:1.5rem;margin-bottom:.5rem;">🎉</div>
+          <div style="font-weight:600;">Item Claimed</div>
+          <div style="color:var(--muted);font-size:.85rem;margin-top:.3rem;">
+            This item has been claimed successfully.
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if session.role == 'admin' %}
+    <div class="card" style="margin-top:1rem;">
+      <div class="card-body">
+        <div style="font-size:.8rem;color:var(--muted);margin-bottom:.75rem;font-weight:600;">
+          ADMIN ACTIONS
+        </div>
+        <a href="{{ url_for('admin_cctv', item_id=item.item_id) }}"
+           class="btn btn-secondary btn-sm" style="display:block;text-align:center;margin-bottom:.5rem;">
+          📷 Review CCTV
+        </a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

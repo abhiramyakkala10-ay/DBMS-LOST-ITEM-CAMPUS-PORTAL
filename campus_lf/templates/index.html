@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Home — Campus L&F{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display:flex;align-items:flex-end;justify-content:space-between;">
+  <div>
+    <h1>Hey, {{ session.name.split()[0] }} 👋</h1>
+    <p>Here's what's happening on campus</p>
+  </div>
+  <a href="{{ url_for('report') }}" class="btn btn-primary">+ Report Item</a>
+</div>
+
+<!-- STATS -->
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2.5rem;">
+  <div class="stat-card">
+    <div class="stat-num" style="color:var(--lost);">{{ stats.lost }}</div>
+    <div class="stat-label">Items Reported Lost</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" style="color:var(--found);">{{ stats.found }}</div>
+    <div class="stat-label">Items Found</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" style="color:var(--accent);">{{ stats.claimed }}</div>
+    <div class="stat-label">Reunited</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">{{ stats.users }}</div>
+    <div class="stat-label">Students Connected</div>
+  </div>
+</div>
+
+<!-- RECENT LOST -->
+<div style="margin-bottom:2.5rem;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+    <h2 style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;">Recently Lost</h2>
+    <a href="{{ url_for('items', type='lost') }}" style="color:var(--muted);font-size:.85rem;">View all →</a>
+  </div>
+  <div class="grid-3">
+    {% for item in recent_lost %}
+    <a href="{{ url_for('item_detail', item_id=item.item_id) }}" class="card">
+      {% if item.image_path %}
+        <img src="/{{ item.image_path }}" class="card-img" alt=""/>
+      {% else %}
+        <div class="card-img-placeholder">📦</div>
+      {% endif %}
+      <div class="card-body">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem;">
+          <span class="badge badge-lost">lost</span>
+          <span class="badge badge-{{ item.status }}">{{ item.status }}</span>
+        </div>
+        <div style="font-weight:500;margin-bottom:.3rem;">{{ item.category }}</div>
+        <div style="color:var(--muted);font-size:.825rem;line-height:1.5;
+                    overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">
+          {{ item.description }}
+        </div>
+        <div style="margin-top:.75rem;font-size:.775rem;color:var(--muted);">
+          📍 {{ item.location.name if item.location else 'Unknown' }} &nbsp;·&nbsp;
+          {{ item.date.strftime('%b %d') }}
+        </div>
+      </div>
+    </a>
+    {% else %}
+      <p style="color:var(--muted);">No recent lost items.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- RECENT FOUND -->
+<div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+    <h2 style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;">Recently Found</h2>
+    <a href="{{ url_for('items', type='found') }}" style="color:var(--muted);font-size:.85rem;">View all →</a>
+  </div>
+  <div class="grid-3">
+    {% for item in recent_found %}
+    <a href="{{ url_for('item_detail', item_id=item.item_id) }}" class="card">
+      {% if item.image_path %}
+        <img src="/{{ item.image_path }}" class="card-img" alt=""/>
+      {% else %}
+        <div class="card-img-placeholder">🔍</div>
+      {% endif %}
+      <div class="card-body">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem;">
+          <span class="badge badge-found">found</span>
+          <span class="badge badge-{{ item.status }}">{{ item.status }}</span>
+        </div>
+        <div style="font-weight:500;margin-bottom:.3rem;">{{ item.category }}</div>
+        <div style="color:var(--muted);font-size:.825rem;line-height:1.5;
+                    overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">
+          {{ item.description }}
+        </div>
+        <div style="margin-top:.75rem;font-size:.775rem;color:var(--muted);">
+          📍 {{ item.location.name if item.location else 'Unknown' }} &nbsp;·&nbsp;
+          {{ item.date.strftime('%b %d') }}
+        </div>
+      </div>
+    </a>
+    {% else %}
+      <p style="color:var(--muted);">No recent found items.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

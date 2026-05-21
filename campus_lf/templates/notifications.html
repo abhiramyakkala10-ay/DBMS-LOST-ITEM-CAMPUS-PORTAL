@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Notifications — Campus L&F{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Notifications</h1>
+</div>
+
+{% if notifs %}
+<div style="max-width:640px;">
+  {% for n in notifs %}
+  <div style="display:flex;gap:1rem;padding:1rem;background:var(--surface);
+              border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.6rem;
+              {% if not n.is_read %}border-left:3px solid var(--accent);{% endif %}">
+    <div style="font-size:1.3rem;flex-shrink:0;">
+      {% if 'claim' in n.message.lower() %}✋
+      {% elif 'match' in n.message.lower() %}🔗
+      {% elif 'approved' in n.message.lower() %}✅
+      {% elif 'rejected' in n.message.lower() %}❌
+      {% else %}🔔{% endif %}
+    </div>
+    <div style="flex:1;">
+      <div style="font-size:.9rem;line-height:1.5;">{{ n.message }}</div>
+      <div style="font-size:.775rem;color:var(--muted);margin-top:.3rem;">
+        {{ n.timestamp.strftime('%b %d, %Y · %H:%M') }}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+  <div style="text-align:center;padding:4rem;color:var(--muted);">
+    <div style="font-size:3rem;margin-bottom:.75rem;">🔕</div>
+    <div>No notifications yet.</div>
+  </div>
+{% endif %}
+
+{% endblock %}
