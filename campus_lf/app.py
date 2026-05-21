@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_from_directory
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
@@ -10,7 +10,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'campus_lf_secret_2024')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or os.environ.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///campus_lf.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
+app.config['UPLOAD_FOLDER'] = os.environ.get('UPLOAD_FOLDER', '/tmp/uploads')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
@@ -130,8 +130,9 @@ def report():
             f = request.files['image']
             if f and allowed_file(f.filename):
                 filename   = secure_filename(f.filename)
-                image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                f.save(image_path)
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                f.save(file_path)
+                image_path = f'uploads/{filename}'
 
         item = Item(
             type        = request.form['type'],
@@ -200,8 +201,9 @@ def claim_item(item_id):
         f = request.files['proof']
         if f and allowed_file(f.filename):
             filename   = secure_filename(f.filename)
-            proof_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            f.save(proof_path)
+            proof_full_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            f.save(proof_full_path)
+            proof_path = f'uploads/{filename}'
 
     claim = Claim(item_id=item_id, claimant_id=session['user_id'],
                   proof=proof_path, notes=request.form.get('notes', ''))
@@ -293,6 +295,11 @@ def api_matches(item_id):
                     'description': m.lost_item.description,
                     'category': m.lost_item.category} for m in matches]
     return jsonify(paired)
+
+
+@app.route('/uploads/<path:filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 # ─── INIT ─────────────────────────────────────────────────────────────────────
 
