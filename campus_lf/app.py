@@ -7,11 +7,12 @@ from match_engine import compute_matches
 import os, json
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'campus_lf_secret_2024'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///campus_lf.db'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'campus_lf_secret_2024')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///campus_lf.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 db.init_app(app)
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
