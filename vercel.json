@@ -1,0 +1,9 @@
+{
+  "buildCommand": "pip install -r requirements.txt",
+  "devCommand": "python -m flask --app campus_lf/app run",
+  "framework": "flask",
+  "env": [
+    "FLASK_ENV=production",
+    "SQLALCHEMY_DATABASE_URI"
+  ]
+}
