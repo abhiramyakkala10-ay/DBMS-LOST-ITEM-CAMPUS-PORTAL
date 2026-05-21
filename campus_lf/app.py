@@ -2,8 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
-from models import db, User, Location, Item, Claim, Match, Notification, CCTVEvent
-from match_engine import compute_matches
+from campus_lf.models import db, User, Location, Item, Claim, Match, Notification, CCTVEvent
+from campus_lf.match_engine import compute_matches
 import os, json
 
 app = Flask(__name__)
