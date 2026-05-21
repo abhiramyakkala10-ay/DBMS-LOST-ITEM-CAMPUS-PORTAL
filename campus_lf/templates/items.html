@@ -66,7 +66,7 @@
         <span class="badge badge-{{ item.type }}">{{ item.type }}</span>
         <span class="badge badge-{{ item.status }}">{{ item.status }}</span>
         {% if item.location and item.location.has_cctv %}
-          <span class="badge" style="background:#1e1b4b;color:#a5b4fc;">📷 CCTV</span>
+          <span class="badge" style="background:var(--dark);color:var(--light);">📷 CCTV</span>
         {% endif %}
       </div>
       <div style="font-weight:500;margin-bottom:.3rem;font-size:.95rem;">{{ item.category | title }}</div>

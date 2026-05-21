@@ -32,7 +32,7 @@
             {{ clip.timestamp.strftime('%b %d, %Y · %H:%M:%S') }}
           </div>
         </div>
-        <span class="badge" style="background:#1e1b4b;color:#a5b4fc;">CCTV</span>
+        <span class="badge" style="background:var(--dark);color:var(--light);">CCTV</span>
       </div>
 
       <div style="background:var(--surface2);border-radius:8px;padding:.75rem;
@@ -78,7 +78,7 @@
           🔗 Link this clip to item
         </a>
       {% else %}
-        <span style="font-size:.78rem;background:#14532d22;color:#86efac;
+        <span style="font-size:.78rem;background:var(--dark);color:var(--light);
                      padding:.2rem .5rem;border-radius:4px;">
           ✓ Linked to item #{{ clip.item_id }}
         </span>
