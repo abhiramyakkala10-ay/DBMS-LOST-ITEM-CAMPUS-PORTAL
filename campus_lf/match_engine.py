@@ -2,7 +2,7 @@
 Auto-matching engine.
 Strategy: SQL + simple scoring on category, location proximity, and date window.
 """
-from models import db, Item, Match
+from campus_lf.models import db, Item, Match
 from datetime import timedelta
 
 CATEGORY_WEIGHT  = 0.5

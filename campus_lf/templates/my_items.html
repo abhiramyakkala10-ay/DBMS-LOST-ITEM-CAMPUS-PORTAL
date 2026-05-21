@@ -39,8 +39,8 @@
       <!-- pending claims on this item -->
       {% set pending = item.claims | selectattr('status','eq','pending') | list %}
       {% if pending %}
-        <div style="margin-top:.6rem;font-size:.78rem;background:#3b2a0022;
-                    border:1px solid #fcd34d44;color:#fcd34d;
+        <div style="margin-top:.6rem;font-size:.78rem;background:var(--dark);
+                    border:1px solid var(--dark);color:var(--light);
                     padding:.3rem .6rem;border-radius:4px;display:inline-block;">
           {{ pending|length }} pending claim{% if pending|length > 1 %}s{% endif %}
         </div>

@@ -92,7 +92,7 @@ function toggleType(el) {
   document.getElementById('lbl-found').style.background  = 'transparent';
   const lbl = document.getElementById('lbl-' + el.value);
   lbl.style.borderColor = el.value === 'lost' ? 'var(--lost)' : 'var(--found)';
-  lbl.style.background  = el.value === 'lost' ? '#7f1d1d22' : '#14532d22';
+  lbl.style.background  = el.value === 'lost' ? 'var(--dark)' : 'var(--dark)';
 }
 
 // Set default datetime to now

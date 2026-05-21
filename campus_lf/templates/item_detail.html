@@ -22,8 +22,8 @@
         <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap;">
           <span class="badge badge-{{ item.type }}">{{ item.type }}</span>
           <span class="badge badge-{{ item.status }}">{{ item.status }}</span>
-          {% if item.location and item.location.has_cctv %}
-            <span class="badge" style="background:#1e1b4b;color:#a5b4fc;">📷 CCTV Available</span>
+            {% if item.location and item.location.has_cctv %}
+            <span class="badge" style="background:var(--dark);color:var(--light);">📷 CCTV Available</span>
           {% endif %}
         </div>
 
@@ -103,9 +103,9 @@
           <div style="font-size:.78rem;color:var(--muted);word-break:break-all;">
             {{ clip.clip_path }}
           </div>
-          {% if clip.detections %}
+              {% if clip.detections %}
             <div style="margin-top:.6rem;">
-              <span style="font-size:.78rem;background:#14532d22;color:#86efac;
+              <span style="font-size:.78rem;background:var(--dark);color:var(--light);
                            padding:.2rem .5rem;border-radius:4px;">
                 {{ clip.detections | length }} detections
               </span>
